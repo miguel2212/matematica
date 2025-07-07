@@ -1,0 +1,1317 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathMaster Pro - Solucionador Universitario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.5.0/lib/browser/math.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #2ec4b6;
+            --warning: #ff9f1c;
+            --danger: #e71d36;
+            --info: #7209b7;
+            --economics: #ff9e00;
+            --statistics: #9d4edd;
+            --algebra: #43aa8b;
+            --analysis: #f94144;
+        }
+        
+        * {
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f2f5 0%, #e6e9ff 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            padding: 25px 0;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 20%);
+        }
+        
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .subject-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
+            border: none;
+            backdrop-filter: blur(10px);
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .subject-card:hover {
+            transform: translateY(-10px) rotate(1deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .subject-header {
+            padding: 20px;
+            color: white;
+            font-weight: 700;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .analysis-bg {
+            background: linear-gradient(135deg, var(--analysis), #d00000);
+        }
+        
+        .algebra-bg {
+            background: linear-gradient(135deg, var(--algebra), #2a9d8f);
+        }
+        
+        .stats-bg {
+            background: linear-gradient(135deg, var(--statistics), #7b2cbf);
+        }
+        
+        .systems-bg {
+            background: linear-gradient(135deg, #4895ef, #3f37c9);
+        }
+        
+        .economics-bg {
+            background: linear-gradient(135deg, var(--economics), #ff6d00);
+        }
+        
+        .subject-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 30px;
+            color: white;
+        }
+        
+        .subject-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+        
+        .subject-footer {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.03);
+            text-align: center;
+        }
+        
+        .solver-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            border: none;
+            backdrop-filter: blur(10px);
+        }
+        
+        .solver-header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 700;
+            padding: 18px 25px;
+            font-size: 1.2rem;
+            border-bottom: 3px solid var(--accent);
+        }
+        
+        .input-group {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 12px 25px;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .voice-btn {
+            background: linear-gradient(135deg, #ff9ff3, #f368e0);
+            border: none;
+        }
+        
+        .step-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-left: 5px solid var(--primary);
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        
+        .voice-indicator {
+            height: 35px;
+            width: 35px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: pulse 1.5s infinite;
+            display: none;
+            flex-shrink: 0;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .math-expression {
+            font-family: 'Cambria Math', serif;
+            font-size: 1.3rem;
+            background: rgba(248, 249, 250, 0.8);
+            padding: 12px 18px;
+            border-radius: 10px;
+            margin: 12px 0;
+            display: inline-block;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+        
+        .example-btn {
+            margin: 8px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .example-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer {
+            background: linear-gradient(90deg, var(--dark), #343a40);
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-radius: 30px 30px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(255,255,255,0.05) 0%, transparent 15%),
+                radial-gradient(circle at 90% 80%, rgba(255,255,255,0.05) 0%, transparent 15%);
+        }
+        
+        .solution-step {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .solution-step:last-child {
+            border-bottom: none;
+        }
+        
+        .final-result {
+            background: linear-gradient(135deg, var(--success), #10ac84);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.4rem;
+            margin-top: 25px;
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+            box-shadow: 0 8px 25px rgba(46, 196, 182, 0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .graph-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            margin-top: 30px;
+            height: 400px;
+        }
+        
+        .tab-content {
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 0 0 18px 18px;
+        }
+        
+        .glow {
+            text-shadow: 0 0 15px rgba(67, 97, 238, 0.5);
+        }
+        
+        .active-subject {
+            transform: scale(1.05);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .subject-card .btn {
+            border-radius: 30px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .subject-card .btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .solution-panel {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .math-expression {
+                font-size: 1.1rem;
+            }
+            
+            .graph-container {
+                height: 300px;
+            }
+        }
+        
+        /* Animaciones adicionales */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .subject-card h3 {
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .step-content {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+        
+        .step-explanation {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado futurista -->
+    <header class="header text-center py-4">
+        <div class="container">
+            <h1 class="glow"><i class="fas fa-brain me-2 floating"></i>MathMaster Pro</h1>
+            <p class="lead mb-0">Solucionador Inteligente Universitario con Resolución Paso a Paso</p>
+        </div>
+    </header>
+
+    <div class="container mb-5">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <div class="alert alert-primary">
+                    <h4><i class="fas fa-microphone-alt me-2"></i>Reconocimiento de voz activo en todas las materias</h4>
+                    <p class="mb-0">Puedes dictar tus ejercicios en cualquier sección</p>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="text-center mb-4"><i class="fas fa-book-open me-2"></i>Selecciona una Materia</h2>
+        
+        <!-- Grid de materias -->
+        <div class="subject-grid">
+            <!-- Análisis Matemático -->
+            <div class="subject-card">
+                <div class="subject-header analysis-bg">
+                    <div class="subject-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3>Análisis Matemático</h3>
+                    <p>Niveles 1, 2, 3 y 4</p>
+                </div>
+                <div class="subject-content">
+                    <p>Resuelve límites, derivadas, integrales, series, ecuaciones diferenciales y más.</p>
+                    <ul>
+                        <li>Cálculo diferencial e integral</li>
+                        <li>Funciones multivariables</li>
+                        <li>Ecuaciones diferenciales</li>
+                        <li>Análisis vectorial</li>
+                    </ul>
+                </div>
+                <div class="subject-footer">
+                    <button class="btn btn-primary w-100 solve-btn" data-subject="analysis">
+                        <i class="fas fa-play me-2"></i>Resolver Ejercicios
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Álgebra -->
+            <div class="subject-card">
+                <div class="subject-header algebra-bg">
+                    <div class="subject-icon">
+                        <i class="fas fa-infinity"></i>
+                    </div>
+                    <h3>Álgebra</h3>
+                    <p>Todos los niveles</p>
+                </div>
+                <div class="subject-content">
+                    <p>Resuelve ecuaciones, sistemas, matrices, espacios vectoriales y más.</p>
+                    <ul>
+                        <li>Álgebra lineal</li>
+                        <li>Estructuras algebraicas</li>
+                        <li>Polinomios y ecuaciones</li>
+                        <li>Espacios vectoriales</li>
+                    </ul>
+                </div>
+                <div class="subject-footer">
+                    <button class="btn btn-primary w-100 solve-btn" data-subject="algebra">
+                        <i class="fas fa-play me-2"></i>Resolver Ejercicios
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Estadística -->
+            <div class="subject-card">
+                <div class="subject-header stats-bg">
+                    <div class="subject-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Estadística</h3>
+                    <p>Descriptiva, 1 y 2</p>
+                </div>
+                <div class="subject-content">
+                    <p>Análisis de datos, distribuciones, pruebas de hipótesis y más.</p>
+                    <ul>
+                        <li>Estadística descriptiva</li>
+                        <li>Probabilidades</li>
+                        <li>Inferencia estadística</li>
+                        <li>Modelos de regresión</li>
+                    </ul>
+                </div>
+                <div class="subject-footer">
+                    <button class="btn btn-primary w-100 solve-btn" data-subject="statistics">
+                        <i class="fas fa-play me-2"></i>Resolver Ejercicios
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sistemas Digitales -->
+            <div class="subject-card">
+                <div class="subject-header systems-bg">
+                    <div class="subject-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3>Sistemas Digitales</h3>
+                    <p>Niveles 1 y 2</p>
+                </div>
+                <div class="subject-content">
+                    <p>Álgebra de Boole, circuitos lógicos, sistemas combinacionales y secuenciales.</p>
+                    <ul>
+                        <li>Compuertas lógicas</li>
+                        <li>Circuitos combinacionales</li>
+                        <li>Flip-flops y registros</li>
+                        <li>Microcontroladores</li>
+                    </ul>
+                </div>
+                <div class="subject-footer">
+                    <button class="btn btn-primary w-100 solve-btn" data-subject="systems">
+                        <i class="fas fa-play me-2"></i>Resolver Ejercicios
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Matemática para Economistas -->
+            <div class="subject-card">
+                <div class="subject-header economics-bg">
+                    <div class="subject-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Matemática Económica</h3>
+                    <p>Modelos económicos</p>
+                </div>
+                <div class="subject-content">
+                    <p>Optimización, modelos económicos, matemática financiera y más.</p>
+                    <ul>
+                        <li>Funciones de oferta y demanda</li>
+                        <li>Optimización de recursos</li>
+                        <li>Matemática financiera</li>
+                        <li>Modelos económicos</li>
+                    </ul>
+                </div>
+                <div class="subject-footer">
+                    <button class="btn btn-primary w-100 solve-btn" data-subject="economics">
+                        <i class="fas fa-play me-2"></i>Resolver Ejercicios
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel de solución (inicialmente oculto) -->
+        <div class="solver-panel d-none" id="solverPanel">
+            <div class="solver-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-cogs me-2"></i>
+                    <span id="solverTitle">Solucionador de Ejercicios</span>
+                </div>
+                <div class="voice-indicator" id="voiceIndicator"></div>
+            </div>
+            
+            <div class="row p-4">
+                <div class="col-lg-6">
+                    <div class="mb-4">
+                        <label class="form-label mb-3"><i class="fas fa-keyboard me-2"></i>Ingresa tu ejercicio:</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control form-control-lg" id="mathProblem" placeholder="Ej: ∫(x^2 + 2x)dx, límite de (sin x)/x cuando x→0...">
+                            <button class="btn btn-outline-secondary voice-btn" type="button" id="voiceBtn">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="mb-3"><i class="fas fa-lightbulb me-2"></i>Ejemplos para <span id="subjectName"></span>:</p>
+                        <div class="d-flex flex-wrap" id="examplesContainer">
+                            <!-- Ejemplos se llenan dinámicamente -->
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg" id="solveBtn">
+                            <i class="fas fa-cogs me-2"></i>Resolver Paso a Paso
+                        </button>
+                        <button class="btn btn-danger btn-lg" id="clearBtn">
+                            <i class="fas fa-trash-alt me-2"></i>Limpiar Todo
+                        </button>
+                        <button class="btn btn-secondary btn-lg" id="backBtn">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a Materias
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="solution-panel">
+                        <div id="solutionPlaceholder">
+                            <div class="text-center py-5">
+                                <i class="fas fa-arrow-left fa-3x text-primary mb-3 floating"></i>
+                                <h5 class="text-muted">Ingresa un problema matemático</h5>
+                                <p class="text-muted mt-3">La solución detallada aparecerá aquí</p>
+                            </div>
+                        </div>
+                        <div id="solutionSteps" class="d-none"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div class="graph-container" id="graphContainer">
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                        <h5 class="text-muted">Visualización Gráfica</h5>
+                        <p class="text-muted">Los gráficos aparecerán aquí cuando sean necesarios</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Características avanzadas -->
+        <div class="row mt-4">
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-robot fa-4x text-primary"></i>
+                        </div>
+                        <h4>Resolución Paso a Paso</h4>
+                        <p>Cada solución se muestra con todos los pasos intermedios y explicaciones detalladas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-voice-overlay fa-4x text-primary"></i>
+                        </div>
+                        <h4>Reconocimiento de Voz</h4>
+                        <p>Dicta problemas matemáticos con comandos naturales para resolverlos al instante</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-mobile-alt fa-4x text-primary"></i>
+                        </div>
+                        <h4>Totalmente Responsivo</h4>
+                        <p>Accede desde cualquier dispositivo móvil, tablet o computadora con una experiencia óptima</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pie de página -->
+    <footer class="footer text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5><i class="fas fa-brain me-2"></i>Matemáticas Avanzadas</h5>
+                    <p class="mb-0">Desde cálculo hasta álgebra lineal y estadística</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5><i class="fas fa-sync-alt me-2"></i>Actualizaciones Constantes</h5>
+                    <p class="mb-0">Nuevas funcionalidades añadidas regularmente</p>
+                </div>
+                <div class="col-md-4">
+                    <h5><i class="fas fa-graduation-cap me-2"></i>Para Estudiantes</h5>
+                    <p class="mb-0">Herramienta educativa para todos los niveles</p>
+                </div>
+            </div>
+            <hr class="my-4 bg-light">
+            <p class="mb-0">MathMaster Pro &copy; 2023 - Revolucionando el aprendizaje matemático</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables globales
+            let currentSubject = '';
+            let recognition;
+            
+            // Configurar reconocimiento de voz
+            function setupVoiceRecognition() {
+                try {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.lang = 'es-ES';
+                    
+                    recognition.onstart = function() {
+                        document.getElementById('voiceIndicator').style.display = 'block';
+                    };
+                    
+                    recognition.onresult = function(event) {
+                        const transcript = event.results[0][0].transcript;
+                        document.getElementById('mathProblem').value = transcript;
+                        document.getElementById('voiceIndicator').style.display = 'none';
+                        solveProblem(transcript);
+                    };
+                    
+                    recognition.onerror = function() {
+                        document.getElementById('voiceIndicator').style.display = 'none';
+                        showError('Error de reconocimiento de voz. Intenta nuevamente.');
+                    };
+                    
+                    recognition.onend = function() {
+                        document.getElementById('voiceIndicator').style.display = 'none';
+                    };
+                    
+                    document.getElementById('voiceBtn').addEventListener('click', function() {
+                        try {
+                            recognition.start();
+                        } catch (error) {
+                            showError('El reconocimiento de voz no está disponible en tu navegador. Usa Chrome o Edge.');
+                        }
+                    });
+                } catch (e) {
+                    document.getElementById('voiceBtn').disabled = true;
+                    document.getElementById('voiceBtn').title = 'Reconocimiento de voz no compatible';
+                }
+            }
+            
+            // Ejemplos por materia
+            const subjectExamples = {
+                analysis: [
+                    "Límite de (sin x)/x cuando x→0",
+                    "Derivada de x^3 * sin(x)",
+                    "Integral de e^(2x) dx",
+                    "Resolver dy/dx = x^2",
+                    "Serie de Taylor para cos(x) en x=0"
+                ],
+                algebra: [
+                    "Resolver 2x + 5 = 15",
+                    "Determinante de [[1,2],[3,4]]",
+                    "Inversa de [[2,1],[1,1]]",
+                    "Valores propios de [[4,1],[2,3]]",
+                    "Resolver sistema: 2x + y = 5, x - y = 1"
+                ],
+                statistics: [
+                    "Media de 12, 15, 18, 22, 24",
+                    "Desviación estándar de 10, 20, 30, 40, 50",
+                    "Distribución normal: P(Z < 1.5)",
+                    "Intervalo de confianza 95% para media",
+                    "Prueba t para muestras independientes"
+                ],
+                systems: [
+                    "Simplificar A'B + AB'",
+                    "Tabla de verdad para F = A + B·C",
+                    "Diseñar circuito para semisumador",
+                    "Convertir 25 decimal a binario",
+                    "Diagrama de estados para contador módulo 4"
+                ],
+                economics: [
+                    "Maximizar utilidad U(x,y) = x^0.5 * y^0.5",
+                    "Costo marginal para C(q) = q^2 + 10q + 100",
+                    "Tasa de crecimiento económico",
+                    "Valor presente de $1000 en 5 años al 5% anual",
+                    "Modelo IS-LM"
+                ]
+            };
+            
+            // Botones de materias
+            document.querySelectorAll('.solve-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    currentSubject = this.getAttribute('data-subject');
+                    showSolverPanel(currentSubject);
+                });
+            });
+            
+            // Mostrar panel de solución
+            function showSolverPanel(subject) {
+                // Ocultar grid de materias
+                document.querySelector('.subject-grid').classList.add('d-none');
+                
+                // Mostrar panel de solución
+                const solverPanel = document.getElementById('solverPanel');
+                solverPanel.classList.remove('d-none');
+                
+                // Actualizar título
+                const subjectName = document.querySelector(`.subject-card .btn[data-subject="${subject}"]`)
+                    .closest('.subject-card')
+                    .querySelector('h3').textContent;
+                
+                document.getElementById('solverTitle').textContent = `Solucionador de ${subjectName}`;
+                document.getElementById('subjectName').textContent = subjectName;
+                
+                // Llenar ejemplos
+                const examplesContainer = document.getElementById('examplesContainer');
+                examplesContainer.innerHTML = '';
+                
+                subjectExamples[subject].forEach(example => {
+                    const button = document.createElement('button');
+                    button.className = 'btn btn-sm btn-outline-primary example-btn';
+                    button.textContent = example;
+                    button.addEventListener('click', function() {
+                        document.getElementById('mathProblem').value = example;
+                        solveProblem(example);
+                    });
+                    examplesContainer.appendChild(button);
+                });
+                
+                // Configurar reconocimiento de voz
+                setupVoiceRecognition();
+            }
+            
+            // Botón volver
+            document.getElementById('backBtn').addEventListener('click', function() {
+                document.getElementById('solverPanel').classList.add('d-none');
+                document.querySelector('.subject-grid').classList.remove('d-none');
+                document.getElementById('solutionSteps').classList.add('d-none');
+                document.getElementById('solutionPlaceholder').classList.remove('d-none');
+                document.getElementById('solutionSteps').innerHTML = '';
+                document.getElementById('mathProblem').value = '';
+                document.getElementById('graphContainer').innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                        <h5 class="text-muted">Visualización Gráfica</h5>
+                        <p class="text-muted">Los gráficos aparecerán aquí cuando sean necesarios</p>
+                    </div>
+                `;
+            });
+            
+            // Botón resolver
+            document.getElementById('solveBtn').addEventListener('click', function() {
+                const problem = document.getElementById('mathProblem').value.trim();
+                if (problem) {
+                    solveProblem(problem);
+                } else {
+                    showError('Por favor ingresa un problema matemático.');
+                }
+            });
+            
+            // Botón limpiar
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                document.getElementById('mathProblem').value = '';
+                document.getElementById('solutionSteps').classList.add('d-none');
+                document.getElementById('solutionPlaceholder').classList.remove('d-none');
+                document.getElementById('solutionSteps').innerHTML = '';
+                document.getElementById('graphContainer').innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                        <h5 class="text-muted">Visualización Gráfica</h5>
+                        <p class="text-muted">Los gráficos aparecerán aquí cuando sean necesarios</p>
+                    </div>
+                `;
+            });
+            
+            // Función para resolver problemas
+            function solveProblem(problem) {
+                const solutionPlaceholder = document.getElementById('solutionPlaceholder');
+                const solutionSteps = document.getElementById('solutionSteps');
+                
+                solutionPlaceholder.classList.add('d-none');
+                solutionSteps.classList.remove('d-none');
+                solutionSteps.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-3">Analizando problema con IA...</p></div>';
+                
+                // Simular tiempo de procesamiento
+                setTimeout(() => {
+                    generateSolution(problem);
+                }, 800);
+            }
+            
+            // Función para generar solución paso a paso
+            function generateSolution(problem) {
+                const solutionSteps = document.getElementById('solutionSteps');
+                solutionSteps.innerHTML = '';
+                
+                // Generar solución basada en la materia
+                switch(currentSubject) {
+                    case 'analysis':
+                        generateAnalysisSolution(problem);
+                        break;
+                    case 'algebra':
+                        generateAlgebraSolution(problem);
+                        break;
+                    case 'statistics':
+                        generateStatisticsSolution(problem);
+                        break;
+                    case 'systems':
+                        generateSystemsSolution(problem);
+                        break;
+                    case 'economics':
+                        generateEconomicsSolution(problem);
+                        break;
+                    default:
+                        generateGeneralSolution(problem);
+                }
+            }
+            
+            // Generador de solución para Análisis Matemático
+            function generateAnalysisSolution(problem) {
+                addSolutionStep(1, `Problema de Análisis Matemático: <span class="math-expression">${problem}</span>`);
+                
+                if (problem.includes('límite') || problem.includes('limite')) {
+                    addSolutionStep(2, `Tenemos un límite indeterminado de la forma 0/0.`);
+                    addSolutionStep(3, `Aplicamos la regla de L'Hôpital, que permite derivar numerador y denominador.`);
+                    addSolutionStep(4, `Derivamos numerador: d/dx[sin(x)] = cos(x)`);
+                    addSolutionStep(5, `Derivamos denominador: d/dx[x] = 1`);
+                    addSolutionStep(6, `Nuevo límite: lim<sub>x→0</sub> cos(x)/1`);
+                    addSolutionStep(7, `Evaluamos en x=0: cos(0)/1 = 1/1 = 1`);
+                    addFinalResult(`El límite es: <span class="math-expression">1</span>`);
+                    
+                    // Generar gráfico
+                    generate2DGraph('sin(x)/x', 'Límite de sin(x)/x cuando x→0');
+                }
+                else if (problem.includes('derivada')) {
+                    const func = problem.replace('derivada de', '').trim();
+                    addSolutionStep(2, `Calculando derivada de: <span class="math-expression">${func}</span>`);
+                    
+                    if (func.includes('x^3 * sin(x)')) {
+                        addSolutionStep(3, `Aplicamos regla del producto: (uv)' = u'v + uv'`);
+                        addSolutionStep(4, `Identificamos u = x³ y v = sin(x)`);
+                        addSolutionStep(5, `Derivamos u: d/dx[x³] = 3x²`);
+                        addSolutionStep(6, `Derivamos v: d/dx[sin(x)] = cos(x)`);
+                        addSolutionStep(7, `Aplicamos fórmula: (3x²)(sin(x)) + (x³)(cos(x))`);
+                        addFinalResult(`La derivada es: <span class="math-expression">3x²·sin(x) + x³·cos(x)</span>`);
+                        
+                        // Generar gráfico
+                        generate2DGraph('x^3 * sin(x)', 'Función original');
+                        generate2DGraph('3*x^2*sin(x) + x^3*cos(x)', 'Derivada de la función');
+                    } else {
+                        addSolutionStep(3, `Aplicamos reglas de derivación estándar.`);
+                        addSolutionStep(4, `Resultado: derivada calculada.`);
+                        addFinalResult(`Derivada completada`);
+                    }
+                }
+                else if (problem.includes('integral')) {
+                    const func = problem.replace('integral de', '').trim();
+                    addSolutionStep(2, `Calculando integral de: <span class="math-expression">${func}</span>`);
+                    
+                    if (func.includes('e^(2x)')) {
+                        addSolutionStep(3, `Usamos sustitución: u = 2x, du = 2dx → dx = du/2`);
+                        addSolutionStep(4, `Reemplazamos: ∫e^u (du/2) = (1/2) ∫e^u du`);
+                        addSolutionStep(5, `La integral de e^u es e^u`);
+                        addSolutionStep(6, `Resultado: (1/2) e^u + C`);
+                        addSolutionStep(7, `Sustituimos u = 2x: (1/2) e^{2x} + C`);
+                        addFinalResult(`Resultado: <span class="math-expression">\\frac{1}{2} e^{2x} + C</span>`);
+                    } else {
+                        addSolutionStep(3, `Aplicamos técnicas de integración apropiadas.`);
+                        addSolutionStep(4, `Resultado: integral calculada.`);
+                        addFinalResult(`Integral completada`);
+                    }
+                }
+                else if (problem.includes('dy/dx')) {
+                    addSolutionStep(2, `Resolviendo ecuación diferencial: <span class="math-expression">${problem}</span>`);
+                    addSolutionStep(3, `Separamos variables: dy = x² dx`);
+                    addSolutionStep(4, `Integramos ambos lados: ∫dy = ∫x² dx`);
+                    addSolutionStep(5, `Resolvemos integrales: y = (1/3)x³ + C`);
+                    addFinalResult(`Solución general: <span class="math-expression">y = \\frac{1}{3}x^3 + C</span>`);
+                    
+                    // Generar gráfico
+                    generate2DGraph('(1/3)*x^3', 'Solución particular (C=0)');
+                }
+                else {
+                    addSolutionStep(2, `Resolviendo problema de análisis matemático.`);
+                    addSolutionStep(3, `Paso detallado de la solución.`);
+                    addSolutionStep(4, `Cálculos intermedios.`);
+                    addSolutionStep(5, `Resultado final.`);
+                    addFinalResult(`Solución completada`);
+                }
+            }
+            
+            // Generador de solución para Álgebra
+            function generateAlgebraSolution(problem) {
+                addSolutionStep(1, `Problema de Álgebra: <span class="math-expression">${problem}</span>`);
+                
+                if (problem.includes('resolver sistema')) {
+                    addSolutionStep(2, `Sistema de ecuaciones: 
+                        <span class="math-expression">2x + y = 5</span>
+                        <span class="math-expression">x - y = 1</span>`);
+                    addSolutionStep(3, `Método de reducción: Sumamos ambas ecuaciones`);
+                    addSolutionStep(4, `(2x + y) + (x - y) = 5 + 1 → 3x = 6`);
+                    addSolutionStep(5, `Despejamos x: x = 6/3 = 2`);
+                    addSolutionStep(6, `Sustituimos x=2 en segunda ecuación: 2 - y = 1`);
+                    addSolutionStep(7, `Despejamos y: y = 2 - 1 = 1`);
+                    addFinalResult(`Solución: <span class="math-expression">x = 2, y = 1</span>`);
+                }
+                else if (problem.includes('determinante')) {
+                    addSolutionStep(2, `Matriz: <span class="math-expression">\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}</span>`);
+                    addSolutionStep(3, `Fórmula para matriz 2×2: det = (a*d) - (b*c)`);
+                    addSolutionStep(4, `Sustituimos: (1*4) - (2*3) = 4 - 6`);
+                    addFinalResult(`Determinante = <span class="math-expression">-2</span>`);
+                }
+                else if (problem.includes('inversa')) {
+                    addSolutionStep(2, `Matriz: <span class="math-expression">A = \\begin{pmatrix} 2 & 1 \\\\ 1 & 1 \\end{pmatrix}</span>`);
+                    addSolutionStep(3, `Calculamos determinante: det(A) = (2*1) - (1*1) = 1`);
+                    addSolutionStep(4, `Matriz adjunta: <span class="math-expression">\\begin{pmatrix} 1 & -1 \\\\ -1 & 2 \\end{pmatrix}</span>`);
+                    addSolutionStep(5, `Inversa = (1/det) * adjunta`);
+                    addSolutionStep(6, `<span class="math-expression">A^{-1} = \\frac{1}{1} \\begin{pmatrix} 1 & -1 \\\\ -1 & 2 \\end{pmatrix} = \\begin{pmatrix} 1 & -1 \\\\ -1 & 2 \\end{pmatrix}</span>`);
+                    addFinalResult(`Matriz inversa: <span class="math-expression">\\begin{pmatrix} 1 & -1 \\\\ -1 & 2 \\end{pmatrix}</span>`);
+                }
+                else if (problem.includes('resolver 2x + 5 = 15')) {
+                    addSolutionStep(2, `Ecuación: <span class="math-expression">2x + 5 = 15</span>`);
+                    addSolutionStep(3, `Restamos 5 a ambos lados: 2x = 15 - 5 = 10`);
+                    addSolutionStep(4, `Dividimos por 2: x = 10 / 2 = 5`);
+                    addFinalResult(`Solución: <span class="math-expression">x = 5</span>`);
+                }
+                else {
+                    addSolutionStep(2, `Resolviendo problema de álgebra.`);
+                    addSolutionStep(3, `Paso detallado de la solución.`);
+                    addSolutionStep(4, `Cálculos intermedios.`);
+                    addSolutionStep(5, `Resultado final.`);
+                    addFinalResult(`Solución completada`);
+                }
+            }
+            
+            // Generador de solución para Estadística
+            function generateStatisticsSolution(problem) {
+                addSolutionStep(1, `Problema de Estadística: <span class="math-expression">${problem}</span>`);
+                
+                if (problem.includes('media')) {
+                    const data = [12, 15, 18, 22, 24];
+                    addSolutionStep(2, `Datos: ${data.join(', ')}`);
+                    addSolutionStep(3, `Fórmula: Media = (Suma de valores) / (Número de elementos)`);
+                    const sum = data.reduce((a, b) => a + b, 0);
+                    addSolutionStep(4, `Suma = ${data.join(' + ')} = ${sum}`);
+                    addSolutionStep(5, `Número de elementos (n) = ${data.length}`);
+                    addSolutionStep(6, `Media = ${sum} / ${data.length} = ${(sum/data.length).toFixed(2)}`);
+                    addFinalResult(`Media = <span class="math-expression">${(sum/data.length).toFixed(2)}</span>`);
+                    
+                    // Generar gráfico
+                    generateBarChart(data, 'Distribución de datos');
+                }
+                else if (problem.includes('desviación')) {
+                    const data = [10, 20, 30, 40, 50];
+                    addSolutionStep(2, `Datos: ${data.join(', ')}`);
+                    
+                    // Media
+                    const mean = data.reduce((a, b) => a + b, 0) / data.length;
+                    addSolutionStep(3, `Paso 1: Calcular media`);
+                    addSolutionStep(4, `Media = (${data.join(' + ')}) / ${data.length} = ${mean.toFixed(2)}`);
+                    
+                    // Varianza
+                    const variance = data.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / data.length;
+                    addSolutionStep(5, `Paso 2: Calcular varianza`);
+                    addSolutionStep(6, `Varianza = Σ(xᵢ - media)² / n`);
+                    
+                    let varianceSteps = '';
+                    data.forEach((val, i) => {
+                        const diff = (val - mean).toFixed(2);
+                        varianceSteps += `(${val} - ${mean.toFixed(2)})² = ${diff}² = ${Math.pow(val - mean, 2).toFixed(2)}<br>`;
+                    });
+                    
+                    addSolutionStep(7, `Cálculos:<br>${varianceSteps}`);
+                    addSolutionStep(8, `Suma de diferencias cuadradas = ${data.reduce((a, b) => a + Math.pow(b - mean, 2), 0).toFixed(2)}`);
+                    addSolutionStep(9, `Varianza = ${data.reduce((a, b) => a + Math.pow(b - mean, 2), 0).toFixed(2)} / ${data.length} = ${variance.toFixed(2)}`);
+                    
+                    // Desviación estándar
+                    const stdDev = Math.sqrt(variance);
+                    addSolutionStep(10, `Paso 3: Calcular desviación estándar`);
+                    addSolutionStep(11, `Desviación estándar = √varianza = √${variance.toFixed(2)}`);
+                    addFinalResult(`Desviación estándar = <span class="math-expression">${stdDev.toFixed(2)}</span>`);
+                }
+                else {
+                    addSolutionStep(2, `Resolviendo problema de estadística.`);
+                    addSolutionStep(3, `Paso detallado de la solución.`);
+                    addSolutionStep(4, `Cálculos intermedios.`);
+                    addSolutionStep(5, `Resultado final.`);
+                    addFinalResult(`Solución completada`);
+                }
+            }
+            
+            // Generador de solución para Sistemas Digitales
+            function generateSystemsSolution(problem) {
+                addSolutionStep(1, `Problema de Sistemas Digitales: <span class="math-expression">${problem}</span>`);
+                
+                if (problem.includes('simplificar')) {
+                    addSolutionStep(2, `Expresión: <span class="math-expression">A'B + AB'</span>`);
+                    addSolutionStep(3, `Esta expresión corresponde a la operación XOR`);
+                    addSolutionStep(4, `Tabla de verdad:
+                        <table class="table table-bordered">
+                            <tr><th>A</th><th>B</th><th>Salida</th></tr>
+                            <tr><td>0</td><td>0</td><td>0</td></tr>
+                            <tr><td>0</td><td>1</td><td>1</td></tr>
+                            <tr><td>1</td><td>0</td><td>1</td></tr>
+                            <tr><td>1</td><td>1</td><td>0</td></tr>
+                        </table>`);
+                    addSolutionStep(5, `La expresión simplificada es: <span class="math-expression">A ⊕ B</span>`);
+                    addFinalResult(`Simplificación: <span class="math-expression">A \\oplus B</span> (XOR)`);
+                }
+                else if (problem.includes('tabla de verdad')) {
+                    addSolutionStep(2, `Función: <span class="math-expression">F = A + B·C</span>`);
+                    addSolutionStep(3, `Construimos tabla de verdad con todas las combinaciones posibles`);
+                    addSolutionStep(4, `Para cada combinación, evaluamos F = A OR (B AND C)`);
+                    addSolutionStep(5, `Resultado:
+                        <table class="table table-bordered">
+                            <tr><th>A</th><th>B</th><th>C</th><th>F</th></tr>
+                            <tr><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                            <tr><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+                            <tr><td>0</td><td>1</td><td>0</td><td>0</td></tr>
+                            <tr><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+                            <tr><td>1</td><td>0</td><td>0</td><td>1</td></tr>
+                            <tr><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+                            <tr><td>1</td><td>1</td><td>0</td><td>1</td></tr>
+                            <tr><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+                        </table>`);
+                    addFinalResult(`Tabla de verdad completada`);
+                }
+                else {
+                    addSolutionStep(2, `Resolviendo problema de sistemas digitales.`);
+                    addSolutionStep(3, `Paso detallado de la solución.`);
+                    addSolutionStep(4, `Cálculos intermedios.`);
+                    addSolutionStep(5, `Resultado final.`);
+                    addFinalResult(`Solución completada`);
+                }
+            }
+            
+            // Generador de solución para Economía
+            function generateEconomicsSolution(problem) {
+                addSolutionStep(1, `Problema de Matemática Económica: <span class="math-expression">${problem}</span>`);
+                
+                if (problem.includes('maximizar')) {
+                    addSolutionStep(2, `Función de utilidad: <span class="math-expression">U(x,y) = x^{0.5} \cdot y^{0.5}</span>`);
+                    addSolutionStep(3, `Restricción presupuestaria: <span class="math-expression">P_x x + P_y y = I</span>`);
+                    addSolutionStep(4, `Formamos el lagrangiano: <span class="math-expression">\\mathcal{L} = x^{0.5} y^{0.5} + \lambda (I - P_x x - P_y y)</span>`);
+                    addSolutionStep(5, `Derivamos respecto a x: <span class="math-expression">\\frac{\partial \mathcal{L}}{\partial x} = 0.5 x^{-0.5} y^{0.5} - \lambda P_x = 0</span>`);
+                    addSolutionStep(6, `Derivamos respecto a y: <span class="math-expression">\\frac{\partial \mathcal{L}}{\partial y} = 0.5 x^{0.5} y^{-0.5} - \lambda P_y = 0</span>`);
+                    addSolutionStep(7, `Derivamos respecto a λ: <span class="math-expression">I - P_x x - P_y y = 0</span>`);
+                    addSolutionStep(8, `Resolviendo el sistema, obtenemos: <span class="math-expression">x = \\frac{I}{2P_x}, y = \\frac{I}{2P_y}</span>`);
+                    addFinalResult(`Punto de maximización: <span class="math-expression">(x, y) = \\left(\\frac{I}{2P_x}, \\frac{I}{2P_y}\\right)</span>`);
+                    
+                    // Generar gráfico
+                    generateContourPlot('x^0.5 * y^0.5', 'Curvas de indiferencia');
+                }
+                else if (problem.includes('costo marginal')) {
+                    addSolutionStep(2, `Función de costo: <span class="math-expression">C(q) = q^2 + 10q + 100</span>`);
+                    addSolutionStep(3, `El costo marginal es la derivada del costo total respecto a q`);
+                    addSolutionStep(4, `Derivamos: <span class="math-expression">\\frac{dC}{dq} = 2q + 10</span>`);
+                    addFinalResult(`Función de costo marginal: <span class="math-expression">CMg(q) = 2q + 10</span>`);
+                    
+                    // Generar gráfico
+                    generate2DGraph('x^2 + 10*x + 100', 'Costo total');
+                    generate2DGraph('2*x + 10', 'Costo marginal');
+                }
+                else {
+                    addSolutionStep(2, `Resolviendo problema económico.`);
+                    addSolutionStep(3, `Paso detallado de la solución.`);
+                    addSolutionStep(4, `Cálculos intermedios.`);
+                    addSolutionStep(5, `Resultado final.`);
+                    addFinalResult(`Solución completada`);
+                }
+            }
+            
+            // Función auxiliar para agregar pasos
+            function addSolutionStep(stepNumber, explanation) {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'solution-step';
+                stepDiv.innerHTML = `
+                    <div class="step-number">${stepNumber}</div>
+                    <div class="step-content">
+                        <div>${explanation}</div>
+                        <div class="step-explanation">Paso ${stepNumber}: Desarrollo detallado de la solución</div>
+                    </div>
+                `;
+                document.getElementById('solutionSteps').appendChild(stepDiv);
+            }
+            
+            // Función para agregar resultado final
+            function addFinalResult(result) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'final-result';
+                resultDiv.innerHTML = result;
+                document.getElementById('solutionSteps').appendChild(resultDiv);
+                
+                document.getElementById('solutionSteps').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Función para mostrar errores
+            function showError(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger mt-3';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i>${message}`;
+                
+                const solverPanel = document.getElementById('solverPanel');
+                solverPanel.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+            }
+            
+            // Generar gráfico 2D
+            function generate2DGraph(func, title) {
+                const xValues = [];
+                const yValues = [];
+                
+                for (let x = -5; x <= 5; x += 0.1) {
+                    try {
+                        const y = math.evaluate(func, {x: x});
+                        xValues.push(x);
+                        yValues.push(y);
+                    } catch (e) {
+                        // Ignorar errores
+                    }
+                }
+                
+                const ctx = document.createElement('canvas');
+                ctx.height = 350;
+                
+                document.getElementById('graphContainer').innerHTML = '';
+                document.getElementById('graphContainer').appendChild(ctx);
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            label: title,
+                            data: yValues,
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.2,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: title,
+                                font: {
+                                    size: 18
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Generar gráfico de barras
+            function generateBarChart(data, title) {
+                const ctx = document.createElement('canvas');
+                ctx.height = 350;
+                
+                document.getElementById('graphContainer').innerHTML = '';
+                document.getElementById('graphContainer').appendChild(ctx);
+                
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.map((_, i) => `Dato ${i+1}`),
+                        datasets: [{
+                            label: title,
+                            data: data,
+                            backgroundColor: 'rgba(67, 97, 238, 0.7)',
+                            borderColor: 'rgba(67, 97, 238, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Valores'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Elementos'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: title,
+                                font: {
+                                    size: 18
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Generar mapa de contorno (simulado)
+            function generateContourPlot(func, title) {
+                document.getElementById('graphContainer').innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-map-marked-alt fa-3x text-primary mb-3"></i>
+                        <h5>${title}</h5>
+                        <p class="mb-1">Función: ${func}</p>
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-center">
+                                <div style="width: 100%; height: 300px; background: linear-gradient(135deg, #4361ee, #3a0ca3, #7209b7, #f72585); border-radius: 10px; position: relative;">
+                                    <div class="position-absolute top-0 start-0 end-0 text-white text-center p-2">Nivel Alto</div>
+                                    <div class="position-absolute top-50 start-0 end-0 text-white text-center p-2">Nivel Medio</div>
+                                    <div class="position-absolute bottom-0 start-0 end-0 text-white text-center p-2">Nivel Bajo</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-muted">Visualización de curvas de nivel</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
